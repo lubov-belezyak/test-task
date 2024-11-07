@@ -1,0 +1,14 @@
+{
+    "name": "test-task/test-task",
+    "type": "project",
+    "description": "test task on PHP5.6",
+    "keywords": ["api", "crud"],
+    "autoload": {
+        "psr-4": {
+            "Src\\": "src/"
+        }
+    },
+    "require": {
+        "robmorgan/phinx": "^0.11.7"
+    }
+}
