@@ -4,9 +4,11 @@ services:
       context: .
       dockerfile: docker/php/Dockerfile
     ports:
-      - "8080:80"
+      - "8000:80"  # Пробрасываем порт 80 контейнера на порт 8000 хоста
     volumes:
-      - .:/var/www/html
+      - .:/var/www/sites
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/sites/public
 
   db:
     image: mysql:5.7
