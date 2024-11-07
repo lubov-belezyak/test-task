@@ -1,15 +1,27 @@
+version: '3.8'
+
 services:
+  # Контейнер для приложения
   app:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
     ports:
-      - "8000:80"  # Пробрасываем порт 80 контейнера на порт 8000 хоста
+      - "8080:80"
     volumes:
-      - .:/var/www/sites
+      - .:/var/www/html
     environment:
-      - APACHE_DOCUMENT_ROOT=/var/www/sites/public
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      - db
+    networks:
+      - app-network
 
+  # Контейнер для MySQL
   db:
     image: mysql:5.7
     environment:
@@ -21,6 +33,14 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+    networks:
+      - app-network
 
+# Определяем сеть для взаимодействия между контейнерами
+networks:
+  app-network:
+    driver: bridge
+
+# Монтируем том для базы данных
 volumes:
   db_data:

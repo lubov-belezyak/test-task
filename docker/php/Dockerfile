@@ -1,38 +1,35 @@
 # Используем образ PHP 5.6 с Apache
 FROM php:5.6-apache
 
-# Настраиваем архивные репозитории Debian Stretch, удаляя строку с 'stretch-updates'
+# Обновляем репозитории Debian на архивные
 RUN sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list && \
     sed -i '/stretch-updates/d' /etc/apt/sources.list && \
     sed -i '/security.debian.org/d' /etc/apt/sources.list && \
     echo "Acquire::Check-Valid-Until false;" > /etc/apt/apt.conf.d/99no-check-valid && \
-    apt-get update -o Acquire::AllowInsecureRepositories=true && \
-    apt-get install -y --no-install-recommends \
-    unzip \
-    curl && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get update -o Acquire::AllowInsecureRepositories=true
 
-# Устанавливаем необходимые PHP расширения (PDO и драйвер MySQL)
-RUN docker-php-ext-install pdo pdo_mysql
+# Устанавливаем нужные зависимости
+RUN apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    unzip \
+    curl \
+    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/freetype2 --with-jpeg-dir=/usr/include \
+    && docker-php-ext-install gd pdo pdo_mysql \
+    && rm -rf /var/lib/apt/lists/*
 
 # Устанавливаем Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Создаём папку и настраиваем DocumentRoot для Apache
-RUN mkdir -p /var/www/sites && \
-    sed -i 's|/var/www/html|/var/www/sites/public|g' /etc/apache2/sites-available/000-default.conf
-
-# Включаем mod_rewrite для Apache
-RUN a2enmod rewrite
-
 # Копируем файлы проекта в контейнер
-COPY . /var/www/sites
+COPY . /var/www/html/
 
 # Устанавливаем права для веб-сервера Apache
-RUN chown -R www-data:www-data /var/www/sites && chmod -R 755 /var/www/sites
+RUN chown -R www-data:www-data /var/www/html
 
 # Устанавливаем рабочую директорию
-WORKDIR /var/www/sites
+WORKDIR /var/www/html
 
-# Перезагружаем конфигурацию Apache
-RUN apachectl -k restart
+# Открываем порты для Apache (по умолчанию 80)
+EXPOSE 80

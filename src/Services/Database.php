@@ -1,26 +1,33 @@
 <?php
 
-namespace Src\Services;
+namespace Services;
 
-use mysqli;
 use PDO;
-use PDOException;
 
 class Database
 {
-    protected $pdo;
+    private $pdo;
 
     public function __construct() {
-        $config = require_once __DIR__ . '/../../config/database.php';
-        $this->pdo = new \PDO(
-            "mysql:host={$config['host']};dbname={$config['database']};charset={$config['charset']}",
-            $config['username'],
-            $config['password'],
-            [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
-        );
+        // Подключаем конфигурацию
+        $config = require __DIR__ . '/../config/database.php';
+
+        $dsn = "mysql:host={$config['host']};dbname={$config['database']};charset=utf8";
+        $options = [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ];
+
+        try {
+            $this->pdo = new PDO($dsn, $config['username'], $config['password'], $options);
+        } catch (\PDOException $e) {
+            echo "Connection failed: " . $e->getMessage();
+            exit;
+        }
     }
 
-    public function getConnection() {
+    public function getPdo() {
         return $this->pdo;
     }
 }
