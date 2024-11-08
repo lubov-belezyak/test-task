@@ -1,8 +1,8 @@
 {
   "builds": [
     {
-      "src": "Dockerfile",
-      "use": "@vercel/docker"
+      "src": "public/index.php",
+      "use": "@vercel/php"
     }
   ]
 }
