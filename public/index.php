@@ -13,3 +13,5 @@ register_shutdown_function([ExceptionHandler::class, 'handleShutdown']);
 
 $db = new Database();
 require_once __DIR__ . '/../routes/api.php';
+
+echo "HELLO";
