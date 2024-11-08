@@ -24,9 +24,14 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 # Копируем файлы проекта в контейнер
 COPY . /var/www/html/
+COPY docker/apache/apache-vhost.conf /etc/apache2/sites-available/000-default.conf
 
 # Устанавливаем права для веб-сервера Apache
-RUN chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
+RUN mkdir -p /var/log/apache2 && chmod -R 755 /var/log/apache2
+
+# Включаем mod_rewrite для Apache
+RUN a2enmod rewrite
 
 # Устанавливаем рабочую директорию
 WORKDIR /var/www/html
